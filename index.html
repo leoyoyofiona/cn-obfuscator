@@ -124,8 +124,8 @@
     /* 入场动画：悬停打开时错峰上浮 */
     .w-card{opacity:0;animation:rise .4s cubic-bezier(.2,.8,.3,1.1) forwards;animation-delay:calc(var(--i)*22ms)}
     @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-    .menu-item:hover .w-card,.menu-item:focus-within .w-card{animation-play-state:running}
-    .menu-item:not(:hover) .w-card{animation-play-state:paused;opacity:0}
+    .menu-item:hover .w-card,.menu-item:focus-within .w-card,.menu-item.open .w-card{animation-play-state:running}
+    .menu-item:not(:hover):not(.open) .w-card{animation-play-state:paused;opacity:0}
 
     /* 咖啡面板 */
     .coffee-panel{width:min(480px,92vw);padding:6px 18px 18px}
