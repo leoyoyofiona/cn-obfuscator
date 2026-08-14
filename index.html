@@ -82,12 +82,21 @@
       box-shadow:var(--shadow-lg);
       transition:opacity .18s ease,transform .18s ease,visibility 0s linear .18s;
     }
-    .menu-item:hover .dropdown,.menu-item:focus-within .dropdown,.menu-item.open .dropdown{
+    .menu-item:focus-within .dropdown,.menu-item.open .dropdown{
       opacity:1;visibility:visible;pointer-events:auto;
       transform:translateX(-50%) translateY(0);
       transition:opacity .18s ease,transform .18s ease,visibility 0s linear 0s;
     }
     .menu-item.open .menu-btn{background:var(--bg2)}
+    /* 悬停展开仅作用于支持 hover 的设备（鼠标）；触屏设备用点击 .open 控制，避免粘性 hover 无法收起 */
+    @media (hover:hover){
+      .menu-item:hover .dropdown{
+        opacity:1;visibility:visible;pointer-events:auto;
+        transform:translateX(-50%) translateY(0);
+        transition:opacity .18s ease,transform .18s ease,visibility 0s linear 0s;
+      }
+      .menu-item:hover .menu-btn{background:var(--bg2)}
+    }
     .drop-head{padding:14px 18px 6px;font-size:13px;font-weight:600;color:var(--ink2)}
 
     /* 作品面板 */
@@ -124,8 +133,11 @@
     /* 入场动画：悬停打开时错峰上浮 */
     .w-card{opacity:0;animation:rise .4s cubic-bezier(.2,.8,.3,1.1) forwards;animation-delay:calc(var(--i)*22ms)}
     @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-    .menu-item:hover .w-card,.menu-item:focus-within .w-card,.menu-item.open .w-card{animation-play-state:running}
-    .menu-item:not(:hover):not(.open) .w-card{animation-play-state:paused;opacity:0}
+    .menu-item.open .w-card{animation-play-state:running}
+    .menu-item:not(.open) .w-card{animation-play-state:paused;opacity:0}
+    @media (hover:hover){
+      .menu-item:hover .w-card,.menu-item:focus-within .w-card{animation-play-state:running}
+    }
 
     /* 咖啡面板 */
     .coffee-panel{width:min(480px,92vw);padding:6px 18px 18px}
@@ -247,6 +259,10 @@
     }
     .foot a{color:var(--blue)}
 
+    /* 窄屏（含 iPad 竖屏）：下拉面板改为固定定位、视口居中，避免被导航栏横向滚动裁剪或溢出屏幕 */
+    @media (max-width:900px){
+      .dropdown{position:fixed;top:70px;left:50%;transform:translateX(-50%)}
+    }
     @media (max-width:760px){
       .w-grid{grid-template-columns:repeat(2,1fr)}
       .nav-inner{overflow-x:auto}
@@ -439,7 +455,7 @@ const NUM_SLANG=[
   ["厉害","666"],["很溜","666"],["牛逼","666"],["我想你","530"],
   ["拜拜","88"],["再见","886"],["我走了","596"],
   ["我爱你","520"],["一生一世","1314"],
-  ["呜呜呜","555"],["气死我了","7456"],["救救我","995"],["谢谢","3Q"],
+  ["呜呜呜","555"],["气死我了","7456"],["救救我","995"],["救命","995"],["谢谢","3Q"],
   ["傻瓜","62"],["二百五","250"],["哈哈","2333"],
   ["就是就是","9494"],["是啊是啊","4242"],
 ];
@@ -461,8 +477,26 @@ const CONV_MAP=[
   ["朋友","盆友"],["同学","童鞋"],["同志","筒子"],["飞机","灰机"],["非常","灰常"],
   ["超级","炒鸡"],["想哭","香菇"],["生气","森气"],["喜欢","稀饭"],["不要","表"],
   ["知道","造"],["可乐","阔落"],["什么","神马"],["怎么","肿么"],["没有","木有"],
-  ["加油","干巴爹"],["晚安","安安"],["尴尬","尬"],["警察","阿sir"],["笑死","笑die"],
+  ["加油","奥利给"],["晚安","安安"],["尴尬","尬"],["警察","阿sir"],["笑死","笑die"],
   ["好的","好滴"],
+  // —— 新增：聊天习惯语 / 互联网梗 / 方言梗 / 新梗（长词在前避免截胡）——
+  ["真的假的","尊嘟假嘟"],["真不错","针不戳"],["太酷了","泰裤辣"],["绷不住了","蚌埠住了"],
+  ["完蛋了","芭比Q了"],["完蛋","芭比Q"],["凉了","凉凉"],["稳了","稳如老狗"],
+  ["原来如此","嗦嘎"],["学会了","学废了"],["离谱","离大谱"],["绝了","绝绝子"],
+  ["无语","无语子"],["麻了","我麻了"],["气死了","气抖冷"],["很慌","慌得一批"],
+  ["震惊","好家伙"],["惊讶","我滴妈"],["委屈","委屈巴巴"],["哭了","嘤嘤嘤"],
+  ["好困","困困"],["累了","累累"],["好累","累瘫"],["辛苦了","辛苦惹"],
+  ["佩服","瑞思拜"],["羡慕","慕了"],["嫉妒","酸了"],["赞同","加一"],["收藏","马克"],
+  ["没错","对对对"],["支持","打call"],["你们","泥萌"],["你好","泥嚎"],
+  ["这个","介个"],["那个","辣个"],["这样","酱"],["那样","酿"],
+  ["姐妹","集美"],["兄弟","兄dei"],["男朋友","蓝朋友"],["宝宝","宝子"],["亲爱的","亲"],
+  ["好吃","好次"],["好看","好康"],["舒服","苏胡"],["快乐","快落"],
+  ["见面","面基"],["照片","皂片"],["王者荣耀","农药"],["吃鸡","恰鸡"],["打游戏","开黑"],
+  ["很菜","菜鸡"],["很棒","棒棒哒"],["洗澡","洗香香"],["上班","打工"],["下班","收工"],
+  ["买买买","剁手"],["没钱","吃土"],["喝酒","吨吨吨"],["喝水","吨吨吨"],
+  ["干嘛呢","干哈呢"],["干什么","干哈"],["怎么办","咋整"],["怎么回事","咋回事"],
+  ["走吧","走起"],["出发","冲鸭"],["么么哒","mua"],["谢了","蟹蟹"],
+  ["没事","木事"],["走了","撤了"],
 ];
 
 // 同音/错别字表（敏感词 → 谐音/错字写法）
@@ -493,13 +527,44 @@ const MIX_MAP=[
   ["崩溃","bēng溃"],["炸裂","炸liè"],["上头","上tóu"],["硬核","yìng核"],["顶级","顶jí"],
 ];
 
+// 表情符号表（正常词 → emoji）
+const EMOJI_MAP=[
+  ["开心","😄"],["高兴","😄"],["难过","😢"],["生气","😠"],["震惊","😱"],
+  ["害怕","😨"],["爱你","❤️"],["晚安","🌙"],["早安","☀️"],["吃饭","🍚"],
+  ["睡觉","😴"],["加油","💪"],["点赞","👍"],["鼓掌","👏"],["笑哭","😂"],
+  ["哭了","😭"],["太棒","👏"],["期待","🤩"],
+];
+
+// 颜文字表（正常词 → 日式颜文字）
+const KAOMOJI_MAP=[
+  ["开心","(≧▽≦)"],["高兴","(≧▽≦)"],["难过","(｡•́︿•̀｡)"],["想哭","(T_T)"],
+  ["哭了","(T_T)"],["尴尬","(⊙﹏⊙)"],["震惊","(⊙o⊙)"],["无语","(￣ω￣;)"],
+  ["生气","(╬ Ò﹏Ó)"],["期待","(☆▽☆)"],["喜欢","(♥ω♥*)"],["晚安","(￣o￣) . z Z"],
+  ["害羞","(⁄ ⁄•⁄ω⁄•⁄ ⁄)"],
+];
+
 // 保护集合：词表替换出来的纯汉字结果不再被二次破坏
 const PROTECT=new Set();
-for(const _m of [NUM_SLANG,CONV_MAP,HOMOPHONE_MAP,MIX_MAP]){
+for(const _m of [NUM_SLANG,CONV_MAP,HOMOPHONE_MAP,MIX_MAP,EMOJI_MAP,KAOMOJI_MAP]){
   for(const[,v]of _m){
     if(/^[\u4e00-\u9fff]{2,}$/.test(v))PROTECT.add(v);
   }
 }
+// 占位符保护：先把所有约定词替换成不可见 token，处理完再还原（彻底避免跨块破坏）
+let _tok=[];
+function hide(t){
+  _tok=[];
+  const vals=[...PROTECT].sort((a,b)=>b.length-a.length);
+  let o=t;
+  for(const v of vals){
+    if(!o.includes(v))continue;
+    const id="\uE000"+_tok.length+"\uE001";
+    _tok.push(v);
+    o=o.split(v).join(id);
+  }
+  return o;
+}
+function show(t){return t.replace(/\uE000\d+\uE001/g,m=>_tok[+m.slice(1,-1)])}
 function hasProtected(seg){
   for(const w of PROTECT){
     if(w.length>=2&&seg.includes(w))return true;
@@ -547,6 +612,8 @@ function applyNum(t){return applyMap(t,NUM_SLANG,1)}
 function applyConv(t,s){return applyMap(t,CONV_MAP,s*0.10)}
 function applyHom(t,s){return applyMap(t,HOMOPHONE_MAP,s*0.09)}
 function applyMix(t,s){return applyMap(t,MIX_MAP,s*0.06)}
+function applyEmoji(t,s){return applyMap(t,EMOJI_MAP,s*0.05)}
+function applyKaomoji(t,s){return applyMap(t,KAOMOJI_MAP,s*0.04)}
 function applyFlip(t,s){
   const p=s*0.06;
   return t.replace(/[\u4e00-\u9fff]{2,5}/g,m=>maybeFlip(m,p));
@@ -557,6 +624,8 @@ function transform(src,strength){
   t=applyConv(t,strength);
   t=applyHom(t,strength);
   t=applyMix(t,strength);
+  t=applyEmoji(t,strength);
+  t=applyKaomoji(t,strength);
   t=applyPinyin(t,strength);
   t=applyFlip(t,strength);
   return t;
@@ -612,16 +681,25 @@ $("copy").onclick=()=>{
       $("outtext").textContent=transform(srcEl.value,6);
     }
   }
-  // 触屏/点击：点击按钮切换展开
+  // 触屏/点击：点击按钮切换展开；收起时释放焦点（避免触屏粘性 focus-within 导致收不回）
   document.querySelectorAll('.menu-item').forEach(mi=>{
     const btn=mi.querySelector('.menu-btn');
     btn.addEventListener('click',e=>{
-      if(mi.classList.contains('open')){mi.classList.remove('open')}
-      else{
+      e.stopPropagation();
+      if(mi.classList.contains('open')){
+        mi.classList.remove('open');
+        btn.blur();
+      }else{
         document.querySelectorAll('.menu-item.open').forEach(o=>o.classList.remove('open'));
         mi.classList.add('open');
       }
     });
+  });
+  // 点击菜单以外的区域自动收起
+  document.addEventListener('click',e=>{
+    if(!e.target.closest('.menu-item')){
+      document.querySelectorAll('.menu-item.open').forEach(o=>o.classList.remove('open'));
+    }
   });
 })();
 </script>
