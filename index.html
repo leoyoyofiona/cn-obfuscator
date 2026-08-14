@@ -109,6 +109,7 @@
   </div>
 </div>
 
+<script src="pinyin-map.js"></script>
 <script>
 // ====== 同音/错别字表（正常词 → 谐音/错字写法） ======
 const HOMOPHONE_MAP=[
@@ -131,19 +132,24 @@ const HOMOPHONE_MAP=[
   ["人质","仁质"],["屠杀","图杀"],["酷刑","哭行"],["虐待","女待"],
 ];
 
-// ====== 数字梗表（正常词 → 数字暗语，中国人一看就懂） ======
+// ====== 数字梗表（正常词 → 数字暗语，长词在前避免被短词先截胡） ======
 const NUM_SLANG=[
-  ["厉害","666"],["很溜","666"],["拜拜","88"],["我爱你","520"],["一生一世","1314"],
-  ["呜呜呜","555"],["气死我了","7456"],["救救我","995"],["谢谢","3Q"],["傻瓜","62"],
+  ["我爱你一生一世","5201314"],["拜拜咯","886"],["哈哈哈","2333"],
+  ["厉害","666"],["很溜","666"],["牛逼","666"],
+  ["拜拜","88"],["再见","886"],
+  ["我爱你","520"],["一生一世","1314"],
+  ["呜呜呜","555"],["气死我了","7456"],["救救我","995"],["谢谢","3Q"],
+  ["傻瓜","62"],["二百五","250"],["哈哈","2333"],
+  ["就是就是","9494"],["是啊是啊","4242"],
 ];
 
-// ====== 字母/拼音混写表（正常词 → 拼音混写） ======
+// ====== 字母/拼音混写表（正常词 → 固定混写/缩写，含网络字母梗） ======
 const MIX_MAP=[
   ["牛逼","niúB"],["厉害","lì害"],["绝了","jue了"],["太强","tai强"],
-  ["nb","niuB"],["yyds","永远滴神"],["草","cǎo"],["卧槽","我cào"],
-  ["太棒","tai棒"],["服了","fu了"],["牛","Niu"],["无语","wú语"],
-  ["我靠","我kao"],["搞笑","gao笑"],["离谱","lí谱"],["崩溃","bēng溃"],
-  ["炸裂","炸liè"],["上头","上tóu"],["硬核","yìng核"],["顶级","顶jí"],
+  ["太棒","tai棒"],["服了","fu了"],["无语","wú语"],["我靠","我kao"],
+  ["搞笑","gao笑"],["离谱","lí谱"],["崩溃","bēng溃"],["炸裂","炸liè"],
+  ["上头","上tóu"],["硬核","yìng核"],["顶级","顶jí"],
+  ["永远的神","yyds"],["笑死我了","xswl"],["你说得对","nsdd"],["有一说一","u1s1"],
 ];
 
 // ====== 工具函数 ======
@@ -164,20 +170,46 @@ function applyMap(t,map,prob){
   }
   return o;
 }
-// strength 为 1~10，归一化后按比例生效
+
+// 通用拼音/字母/混搭引擎：对任意汉字生效
+// 单字级：全拼(wo) / 首字母(w) / 首字母+字(j天) / 字+首字母(今t)
+// 词级：2~4字词整体缩写为拼音首字母大写(方案→FA)
+function applyPinyin(t,s){
+  const p=s*0.025;   // 单字替换概率
+  const pRun=s*0.03; // 整词缩写概率
+  return t.replace(/[\u4e00-\u9fff]{2,5}/g,run=>{
+    if(run.length>=2&&run.length<=4&&Math.random()<pRun){
+      let acro="";
+      for(const ch of run){const py=PY[ch];if(!py){acro="";break}acro+=py[0]}
+      if(acro.length>=2)return acro.toUpperCase();
+    }
+    return run.replace(/[\u4e00-\u9fff]/g,ch=>{
+      if(Math.random()>=p)return ch;
+      const py=PY[ch];if(!py)return ch;
+      const r=Math.random();
+      if(r<0.45)return py;          // 全拼：我→wo
+      if(r<0.7)return py[0];        // 首字母：我→w
+      if(r<0.85)return py[0]+ch;    // 首字母+字：今→j今
+      return ch+py[0];              // 字+首字母：今→今j
+    });
+  });
+}
+
+// strength 为 1~10
 function applyHom(t,s){return applyMap(t,HOMOPHONE_MAP,s*0.09)}
 function applyNum(t){return applyMap(t,NUM_SLANG,1)}
 function applyMix(t,s){return applyMap(t,MIX_MAP,s*0.06)}
 function applyFlip(t,s){
-  const p=s*0.075;
+  const p=s*0.06;
   return t.replace(/[\u4e00-\u9fff]{2,5}/g,m=>maybeFlip(m,p));
 }
 function transform(src,strength){
   let t=src;
-  t=applyNum(t);        // 先处理数字梗，优先把 厉害→666 这类替换掉
-  t=applyHom(t,strength);
-  t=applyMix(t,strength);
-  t=applyFlip(t,strength);
+  t=applyNum(t);         // ① 数字梗
+  t=applyHom(t,strength);// ② 同音/错别字
+  t=applyMix(t,strength);// ③ 固定拼音混写/字母缩写
+  t=applyPinyin(t,strength);// ④ 通用拼音/字母/混搭
+  t=applyFlip(t,strength);// ⑤ 字序微颠倒
   return t;
 }
 
