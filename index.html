@@ -91,7 +91,7 @@
   <h1>怎么改你都懂</h1>
 
   <label for="src">输入原文</label>
-  <textarea id="src" placeholder="在这里输入你想改写的中文句子，比如：&#10;这个方案真的太厉害了，我们明天下午三点开会讨论一下吧，拜拜！"></textarea>
+  <textarea id="src" placeholder="在这里输入你想改写的中文句子，比如：&#10;朋友，这个方案真的太厉害了，你说得对，晚上一起吃饭睡觉，晚安！"></textarea>
 
   <div class="controls">
     <div class="slider-group">
@@ -111,7 +111,43 @@
 
 <script src="pinyin-map.js"></script>
 <script>
-// ====== 同音/错别字表（正常词 → 谐音/错字写法） ======
+// ====== 数字梗表（正常词 → 数字暗语，长词在前避免被短词先截胡） ======
+const NUM_SLANG=[
+  ["我爱你一生一世","5201314"],["我生气了","5376"],["拜拜咯","886"],["哈哈哈","2333"],
+  ["厉害","666"],["很溜","666"],["牛逼","666"],["我想你","530"],
+  ["拜拜","88"],["再见","886"],["我走了","596"],
+  ["我爱你","520"],["一生一世","1314"],
+  ["呜呜呜","555"],["气死我了","7456"],["救救我","995"],["谢谢","3Q"],
+  ["傻瓜","62"],["二百五","250"],["哈哈","2333"],
+  ["就是就是","9494"],["是啊是啊","4242"],
+];
+
+// ====== 约定俗成词表（互联网通用表达：谐音字词 + 拼音缩写 + 中英混搭）
+// 来源：维基百科「拼音缩写」、网络缩略语大全、中文网络词规范化数据集等
+// 长词在前，避免被短词先截胡 ======
+const CONV_MAP=[
+  // —— 拼音缩写（字母梗）——
+  ["笑死我了","xswl"],["永远的神","yyds"],["你说得对","nsdd"],["有一说一","u1s1"],
+  ["不好意思","bhys"],["瑟瑟发抖","ssfd"],["漂亮妹妹","plmm"],["真情实感","zqsg"],
+  ["生日快乐","生快"],["不懂就问","bdjw"],["啊我死了","awsl"],["对不起","dbq"],
+  ["太强了","tql"],["磕死我了","kswl"],["女朋友","npy"],["打扰了","drl"],
+  ["小哥哥","xgg"],["小姐姐","xjj"],["兄弟们","xdm"],["家人们","jrm"],
+  ["搞快点","gkd"],["学到了","xdl"],["磕到了","kdl"],["楼主","lz"],["微信","wx"],
+  // —— 谐音字词 ——
+  ["不知道","布吉岛"],["有没有","有木有"],["这样子","酱紫"],["为什么","为神马"],
+  ["没关系","木有关系"],["怎么了","肿么了"],["害怕","害pia"],["可爱","阔爱"],
+  ["可怕","阔怕"],["难过","蓝瘦"],["开心","开熏"],["紧张","紧脏"],["激动","鸡冻"],
+  ["简单","煎蛋"],["美女","美铝"],["帅哥","帅锅"],["妹妹","美眉"],["妈妈","麻麻"],
+  ["爸爸","粑粑"],["叔叔","蜀黍"],["老师","老湿"],["孩子","孩纸"],["公主","公举"],
+  ["哥哥","葛格"],["姐姐","解解"],["弟弟","底迪"],["睡觉","碎觉"],["吃饭","次饭"],
+  ["朋友","盆友"],["同学","童鞋"],["同志","筒子"],["飞机","灰机"],["非常","灰常"],
+  ["超级","炒鸡"],["想哭","香菇"],["生气","森气"],["喜欢","稀饭"],["不要","表"],
+  ["知道","造"],["可乐","阔落"],["什么","神马"],["怎么","肿么"],["没有","木有"],
+  ["加油","干巴爹"],["晚安","安安"],["尴尬","尬"],["警察","阿sir"],["笑死","笑die"],
+  ["好的","好滴"],
+];
+
+// ====== 同音/错别字表（敏感词 → 谐音/错字写法） ======
 const HOMOPHONE_MAP=[
   ["政府","振府"],["检查","捡查"],["监控","见控"],["敏感","感敏"],["审查","审察"],
   ["政治","政制"],["民主","皿主"],["自由","自游"],["人权","仁权"],["改革","改格"],
@@ -132,31 +168,33 @@ const HOMOPHONE_MAP=[
   ["人质","仁质"],["屠杀","图杀"],["酷刑","哭行"],["虐待","女待"],
 ];
 
-// ====== 数字梗表（正常词 → 数字暗语，长词在前避免被短词先截胡） ======
-const NUM_SLANG=[
-  ["我爱你一生一世","5201314"],["拜拜咯","886"],["哈哈哈","2333"],
-  ["厉害","666"],["很溜","666"],["牛逼","666"],
-  ["拜拜","88"],["再见","886"],
-  ["我爱你","520"],["一生一世","1314"],
-  ["呜呜呜","555"],["气死我了","7456"],["救救我","995"],["谢谢","3Q"],
-  ["傻瓜","62"],["二百五","250"],["哈哈","2333"],
-  ["就是就是","9494"],["是啊是啊","4242"],
-];
-
-// ====== 字母/拼音混写表（正常词 → 固定混写/缩写，含网络字母梗） ======
+// ====== 带音调拼音混写表（正常词 → lì害 这类写法） ======
 const MIX_MAP=[
-  ["牛逼","niúB"],["厉害","lì害"],["绝了","jue了"],["太强","tai强"],
-  ["太棒","tai棒"],["服了","fu了"],["无语","wú语"],["我靠","我kao"],
-  ["搞笑","gao笑"],["离谱","lí谱"],["崩溃","bēng溃"],["炸裂","炸liè"],
-  ["上头","上tóu"],["硬核","yìng核"],["顶级","顶jí"],
-  ["永远的神","yyds"],["笑死我了","xswl"],["你说得对","nsdd"],["有一说一","u1s1"],
+  ["绝了","jue了"],["太强","tai强"],["太棒","tai棒"],["服了","fu了"],
+  ["无语","wú语"],["我靠","我kao"],["搞笑","gao笑"],["离谱","lí谱"],
+  ["崩溃","bēng溃"],["炸裂","炸liè"],["上头","上tóu"],["硬核","yìng核"],["顶级","顶jí"],
 ];
 
 // ====== 工具函数 ======
+// 保护集合：词表替换出来的纯汉字结果（酱紫、盆友、布吉岛…）不再被字序颠倒/随机拼音二次破坏
+const PROTECT=new Set();
+for(const _m of [NUM_SLANG,CONV_MAP,HOMOPHONE_MAP,MIX_MAP]){
+  for(const[,v]of _m){
+    if(/^[\u4e00-\u9fff]{2,}$/.test(v))PROTECT.add(v);
+  }
+}
+// 片段内只要包含任一约定词（长度≥2），就整体跳过，避免破坏已替换结果
+function hasProtected(seg){
+  for(const w of PROTECT){
+    if(w.length>=2&&seg.includes(w))return true;
+  }
+  return false;
+}
 function rand(n){return Math.floor(Math.random()*n)}
 function flipTwo(s){if(s.length<2)return s;const i=rand(s.length-1);return s.slice(0,i)+s[i+1]+s[i]+s.slice(i+2)}
 function maybeFlip(seg,p){
   if(!/^[\u4e00-\u9fff]{2,5}$/.test(seg))return seg;
+  if(hasProtected(seg))return seg;
   if(Math.random()>p)return seg;
   if(seg.length===2)return Math.random()<.7?seg[1]+seg[0]:seg;
   return flipTwo(seg);
@@ -171,13 +209,14 @@ function applyMap(t,map,prob){
   return o;
 }
 
-// 通用拼音/字母/混搭引擎：对任意汉字生效
+// 通用拼音/字母兜底引擎：仅对词表没覆盖的任意汉字生效（概率低，以约定俗成为主）
 // 单字级：全拼(wo) / 首字母(w) / 首字母+字(j天) / 字+首字母(今t)
 // 词级：2~4字词整体缩写为拼音首字母大写(方案→FA)
 function applyPinyin(t,s){
-  const p=s*0.025;   // 单字替换概率
-  const pRun=s*0.03; // 整词缩写概率
+  const p=s*0.015;  // 单字替换概率（低）
+  const pRun=s*0.02; // 整词缩写概率（低）
   return t.replace(/[\u4e00-\u9fff]{2,5}/g,run=>{
+    if(hasProtected(run))return run;   // 片段内含约定俗成词 → 保护，不再二次改写
     if(run.length>=2&&run.length<=4&&Math.random()<pRun){
       let acro="";
       for(const ch of run){const py=PY[ch];if(!py){acro="";break}acro+=py[0]}
@@ -196,8 +235,9 @@ function applyPinyin(t,s){
 }
 
 // strength 为 1~10
-function applyHom(t,s){return applyMap(t,HOMOPHONE_MAP,s*0.09)}
 function applyNum(t){return applyMap(t,NUM_SLANG,1)}
+function applyConv(t,s){return applyMap(t,CONV_MAP,s*0.10)}
+function applyHom(t,s){return applyMap(t,HOMOPHONE_MAP,s*0.09)}
 function applyMix(t,s){return applyMap(t,MIX_MAP,s*0.06)}
 function applyFlip(t,s){
   const p=s*0.06;
@@ -205,11 +245,12 @@ function applyFlip(t,s){
 }
 function transform(src,strength){
   let t=src;
-  t=applyNum(t);         // ① 数字梗
-  t=applyHom(t,strength);// ② 同音/错别字
-  t=applyMix(t,strength);// ③ 固定拼音混写/字母缩写
-  t=applyPinyin(t,strength);// ④ 通用拼音/字母/混搭
-  t=applyFlip(t,strength);// ⑤ 字序微颠倒
+  t=applyNum(t);          // ① 数字梗
+  t=applyConv(t,strength); // ② 约定俗成词（首选）
+  t=applyHom(t,strength); // ③ 同音/错别字
+  t=applyMix(t,strength); // ④ 带音调拼音混写
+  t=applyPinyin(t,strength); // ⑤ 通用拼音/字母兜底
+  t=applyFlip(t,strength);   // ⑥ 字序微颠倒
   return t;
 }
 
