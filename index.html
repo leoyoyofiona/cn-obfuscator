@@ -345,7 +345,7 @@
     <h1>怎么改你都懂</h1>
 
     <label for="src">输入原文</label>
-    <textarea id="src" placeholder="在这里输入你想改写的中文句子，比如：&#10;朋友，这个方案真的太厉害了，你说得对，晚上一起吃饭睡觉，晚安！"></textarea>
+    <textarea id="src" placeholder="输入你想改写的中文句子…"></textarea>
 
     <div class="controls">
       <div class="slider-group">
@@ -359,7 +359,7 @@
     <label>改写结果</label>
     <div class="out-card" id="out">
       <button class="copy-btn" id="copy">复制</button>
-      <span id="outtext">点「改写一下」看看效果 ✨</span>
+      <span id="outtext">好滴，太你666了！</span>
     </div>
   </div>
 
@@ -572,6 +572,9 @@ function paintSlider(){
 }
 slider.oninput=paintSlider;
 paintSlider();
+
+// 页面初始展示示例：输入框预填，结果框已显示「好滴，太你666了！」
+$("src").value="好的，你太厉害了！";
 
 $("go").onclick=()=>{
   const src=$("src").value.trim();
