@@ -1,41 +1,192 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>怎么改你都懂</title>
+  <title>LEO · 怎么改你都懂</title>
+  <script>
+    // 提前设置主题，避免闪烁
+    (function(){
+      try{
+        var t=localStorage.getItem('leo-theme');
+        if(!t){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
+        document.documentElement.dataset.theme=t;
+      }catch(e){}
+    })();
+  </script>
   <style>
-    :root{--blue:#0071e3;--blue-hover:#0077ed;--ink:#1d1d1f;--ink-2:#6e6e73;--bg:#f5f5f7;--line:#d2d2d7;--line-soft:#e8e8ed}
+    :root{--blue:#0071e3;--blue-hover:#0077ed}
+    :root[data-theme="light"]{
+      --bg:#f5f5f7;--panel:#ffffff;--bg2:#f5f5f7;--ink:#1d1d1f;--ink2:#6e6e73;
+      --line:#d2d2d7;--linesoft:#e8e8ed;--nav:rgba(255,255,255,.72);
+      --shadow:0 2px 12px rgba(0,0,0,.06);--shadow-lg:0 24px 60px rgba(0,0,0,.16);
+    }
+    :root[data-theme="dark"]{
+      --bg:#1d1d1f;--panel:#2c2c2e;--bg2:#232325;--ink:#f5f5f7;--ink2:#a1a1a6;
+      --line:#48484a;--linesoft:#3a3a3c;--nav:rgba(29,29,31,.72);
+      --shadow:0 2px 12px rgba(0,0,0,.35);--shadow-lg:0 24px 60px rgba(0,0,0,.55);
+    }
     *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
     body{
       font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","PingFang SC","Helvetica Neue","Microsoft YaHei",sans-serif;
       background:var(--bg);color:var(--ink);
       -webkit-font-smoothing:antialiased;
       min-height:100vh;
+      transition:background .3s,color .3s;
     }
-    .wrap{max-width:680px;margin:0 auto;padding:72px 24px 96px}
+    a{color:var(--blue);text-decoration:none}
+
+    /* ===== 顶部导航 ===== */
+    .nav{
+      position:fixed;top:0;left:0;right:0;z-index:100;
+      background:var(--nav);
+      -webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);
+      border-bottom:1px solid var(--linesoft);
+      transition:background .3s,border-color .3s;
+    }
+    .nav-inner{
+      max-width:1120px;margin:0 auto;padding:0 20px;height:58px;
+      display:flex;align-items:center;gap:8px;
+    }
+    .brand{
+      display:flex;align-items:center;gap:9px;
+      font-weight:700;font-size:17px;letter-spacing:.02em;color:var(--ink);
+      margin-right:auto;
+    }
+    .brand .logo{
+      width:30px;height:30px;border-radius:9px;
+      background:linear-gradient(135deg,#0071e3,#7d5fff);
+      display:flex;align-items:center;justify-content:center;
+      color:#fff;font-size:15px;font-weight:800;
+      box-shadow:0 3px 10px rgba(0,113,227,.4);
+    }
+    .menu{display:flex;align-items:center;gap:2px}
+    .menu-item{position:relative}
+    .menu-btn{
+      appearance:none;border:none;background:transparent;color:var(--ink);
+      font-family:inherit;font-size:14px;font-weight:500;
+      padding:8px 14px;border-radius:980px;cursor:pointer;
+      transition:background .2s;
+    }
+    .menu-btn:hover{background:var(--bg2)}
+    .menu-item:hover .menu-btn{background:var(--bg2)}
+    .caret{font-size:10px;opacity:.6;margin-left:3px}
+
+    /* 下拉面板 */
+    .dropdown{
+      position:absolute;top:calc(100% + 10px);left:50%;
+      transform:translateX(-50%) translateY(8px);
+      opacity:0;visibility:hidden;pointer-events:none;
+      background:var(--panel);border:1px solid var(--linesoft);border-radius:20px;
+      box-shadow:var(--shadow-lg);
+      transition:opacity .18s ease,transform .18s ease,visibility 0s linear .18s;
+    }
+    .menu-item:hover .dropdown,.menu-item:focus-within .dropdown{
+      opacity:1;visibility:visible;pointer-events:auto;
+      transform:translateX(-50%) translateY(0);
+      transition:opacity .18s ease,transform .18s ease,visibility 0s linear 0s;
+    }
+    .drop-head{padding:14px 18px 6px;font-size:13px;font-weight:600;color:var(--ink2)}
+
+    /* 作品面板 */
+    .works-panel{width:min(800px,94vw);padding:6px 14px 16px}
+    .w-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;padding:8px 4px}
+    .w-card{
+      display:flex;align-items:center;gap:11px;
+      padding:10px 12px;border-radius:14px;
+      border:1px solid var(--linesoft);background:var(--bg2);
+      color:var(--ink);
+      transition:transform .2s,box-shadow .2s,border-color .2s;
+      position:relative;overflow:hidden;
+    }
+    .w-card:hover{
+      transform:translateY(-4px);
+      border-color:var(--blue);
+      box-shadow:0 14px 30px rgba(0,0,0,.16);
+    }
+    .w-icon{
+      flex:0 0 38px;width:38px;height:38px;border-radius:11px;
+      display:flex;align-items:center;justify-content:center;font-size:19px;
+      background:linear-gradient(135deg,var(--g1,#36d1dc),var(--g2,#5b86e5));
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.25);
+    }
+    .w-info{min-width:0}
+    .w-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .w-desc{font-size:11px;color:var(--ink2);margin-top:1px;line-height:1.35;
+      display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .w-badge{
+      position:absolute;top:6px;right:8px;font-size:9px;font-weight:600;
+      color:#fff;background:linear-gradient(135deg,#ff5f6d,#ff9a3d);
+      padding:2px 7px;border-radius:980px;
+    }
+    /* 入场动画：悬停打开时错峰上浮 */
+    .w-card{opacity:0;animation:rise .4s cubic-bezier(.2,.8,.3,1.1) forwards;animation-delay:calc(var(--i)*22ms)}
+    @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .menu-item:hover .w-card,.menu-item:focus-within .w-card{animation-play-state:running}
+    .menu-item:not(:hover) .w-card{animation-play-state:paused;opacity:0}
+
+    /* 咖啡面板 */
+    .coffee-panel{width:min(480px,92vw);padding:6px 18px 18px}
+    .coffee-tip{font-size:13px;color:var(--ink2);line-height:1.6;margin:8px 0 14px}
+    .qr-row{display:flex;gap:12px}
+    .qr-card{
+      flex:1;border:1px solid var(--linesoft);border-radius:16px;background:var(--bg2);
+      padding:12px;text-align:center;
+    }
+    .qr-card .qr-label{font-size:13px;font-weight:600;margin-bottom:8px}
+    .qr-card .qr-label span{font-size:11px;color:var(--ink2);font-weight:400;display:block;margin-top:2px}
+    .qr-box{
+      width:120px;height:120px;margin:0 auto;border-radius:10px;overflow:hidden;
+      background:repeating-conic-gradient(var(--linesoft) 0% 25%,var(--panel) 0% 50%) 50%/16px 16px;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .qr-box img{width:100%;height:100%;object-fit:contain}
+    .qr-ph{font-size:11px;color:var(--ink2);text-align:center;padding:8px}
+
+    /* 联系面板 */
+    .contact-panel{width:min(360px,92vw);padding:6px 18px 16px}
+    .c-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;transition:background .2s}
+    .c-row:hover{background:var(--bg2)}
+    .c-ico{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;background:linear-gradient(135deg,#36d1dc,#5b86e5)}
+    .c-txt{font-size:13px;color:var(--ink);font-weight:500}
+    .c-sub{font-size:11px;color:var(--ink2);margin-top:1px}
+
+    /* 声明面板 */
+    .disc-panel{width:min(440px,92vw);padding:6px 20px 18px}
+    .disc-panel p{font-size:12.5px;color:var(--ink2);line-height:1.85;margin-top:8px}
+    .disc-panel b{color:var(--ink)}
+
+    /* 主题切换 */
+    .theme-btn{
+      appearance:none;border:1px solid var(--line);background:var(--panel);color:var(--ink);
+      width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:16px;
+      display:flex;align-items:center;justify-content:center;
+      transition:transform .25s,border-color .2s;
+      margin-left:6px;
+    }
+    .theme-btn:hover{transform:rotate(18deg) scale(1.06);border-color:var(--blue)}
+
+    /* ===== 主内容 ===== */
+    .wrap{max-width:680px;margin:0 auto;padding:118px 24px 140px}
     h1{
       font-size:34px;font-weight:700;letter-spacing:-.02em;
       text-align:center;margin-bottom:44px;
     }
-    label{display:block;font-size:13px;font-weight:500;color:var(--ink-2);margin-bottom:10px}
+    label{display:block;font-size:13px;font-weight:500;color:var(--ink2);margin-bottom:10px}
     textarea{
       width:100%;min-height:132px;
-      padding:16px 18px;
-      border-radius:16px;
-      border:1px solid var(--line);
-      background:#fff;
-      color:var(--ink);
-      font-size:16px;line-height:1.65;
-      resize:vertical;outline:none;
-      box-shadow:0 2px 12px rgba(0,0,0,.04);
-      transition:border-color .2s,box-shadow .2s;
+      padding:16px 18px;border-radius:16px;
+      border:1px solid var(--line);background:var(--panel);color:var(--ink);
+      font-size:16px;line-height:1.65;resize:vertical;outline:none;
+      box-shadow:var(--shadow);
+      transition:border-color .2s,box-shadow .2s,background .3s,color .3s;
     }
     textarea:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(0,113,227,.12)}
     textarea::placeholder{color:#a1a1a6}
     .controls{display:flex;align-items:center;gap:18px;margin:26px 0 32px}
     .slider-group{flex:1;display:flex;align-items:center;gap:16px}
-    .slider-group .cap{font-size:14px;font-weight:500;color:var(--ink-2);white-space:nowrap}
+    .slider-group .cap{font-size:14px;font-weight:500;color:var(--ink2);white-space:nowrap}
     input[type=range]{
       -webkit-appearance:none;appearance:none;
       flex:1;height:28px;background:transparent;cursor:pointer;
@@ -56,62 +207,230 @@
     input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:#fff;border:none;box-shadow:0 2px 8px rgba(0,0,0,.16)}
     .slider-val{
       min-width:44px;text-align:center;
-      font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;
-      color:var(--blue);
+      font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--blue);
     }
     button#go{
       padding:12px 30px;border-radius:980px;border:none;
       background:var(--blue);color:#fff;
-      font-size:15px;font-weight:600;font-family:inherit;
-      cursor:pointer;transition:background .2s,transform .12s,box-shadow .2s;
-      box-shadow:0 2px 8px rgba(0,113,227,.28);
-      white-space:nowrap;
+      font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;
+      transition:background .2s,transform .12s,box-shadow .2s;
+      box-shadow:0 2px 8px rgba(0,113,227,.28);white-space:nowrap;
     }
     button#go:hover{background:var(--blue-hover)}
     button#go:active{transform:scale(.97)}
     .out-card{
-      background:#fff;border:1px solid var(--line-soft);border-radius:16px;
+      background:var(--panel);border:1px solid var(--linesoft);border-radius:16px;
       padding:22px 22px 18px;min-height:92px;
-      white-space:pre-wrap;font-size:16px;line-height:1.7;
-      position:relative;
-      box-shadow:0 2px 12px rgba(0,0,0,.04);
+      white-space:pre-wrap;font-size:16px;line-height:1.7;position:relative;
+      box-shadow:var(--shadow);
+      transition:background .3s,border-color .3s;
     }
     .copy-btn{
       position:absolute;top:14px;right:14px;
-      background:#fff;border:1px solid var(--line);border-radius:980px;
+      background:var(--panel);border:1px solid var(--line);border-radius:980px;
       color:var(--blue);padding:5px 14px;
       font-size:12px;font-weight:500;font-family:inherit;cursor:pointer;
       transition:background .15s,border-color .15s;
     }
     .copy-btn:hover{background:var(--bg);border-color:var(--blue)}
+
+    /* ===== 底部免责声明条 ===== */
+    .foot{
+      position:fixed;bottom:0;left:0;right:0;z-index:99;
+      background:var(--nav);
+      -webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);
+      border-top:1px solid var(--linesoft);
+      padding:9px 20px;text-align:center;
+      font-size:11.5px;color:var(--ink2);
+      transition:background .3s,border-color .3s;
+    }
+    .foot a{color:var(--blue)}
+
+    @media (max-width:760px){
+      .w-grid{grid-template-columns:repeat(2,1fr)}
+      .nav-inner{overflow-x:auto}
+      .menu-btn{padding:8px 10px;font-size:13px}
+    }
+    @media (max-width:480px){
+      .w-grid{grid-template-columns:1fr}
+    }
   </style>
 </head>
-<body>
-<div class="wrap">
-  <h1>怎么改你都懂</h1>
+<body id="top">
 
-  <label for="src">输入原文</label>
-  <textarea id="src" placeholder="在这里输入你想改写的中文句子，比如：&#10;朋友，这个方案真的太厉害了，你说得对，晚上一起吃饭睡觉，晚安！"></textarea>
+  <!-- ===== 顶部导航 ===== -->
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="https://github.com/leoyoyofiona" target="_blank" rel="noopener" title="LEO 的 GitHub">
+        <span class="logo">L</span>LEO
+      </a>
 
-  <div class="controls">
-    <div class="slider-group">
-      <span class="cap">改写强度</span>
-      <input id="strength" type="range" min="1" max="10" value="6" />
-      <span class="slider-val" id="sval">6</span>
+      <nav class="menu">
+        <!-- 作品 -->
+        <div class="menu-item">
+          <button class="menu-btn">作品<span class="caret">▼</span></button>
+          <div class="dropdown works-panel" id="works-panel">
+            <div class="drop-head">LEO 的作品 · 全部开源在 GitHub，部署在 Render</div>
+            <div class="w-grid" id="w-grid"></div>
+          </div>
+        </div>
+
+        <!-- 咖啡 -->
+        <div class="menu-item">
+          <button class="menu-btn">咖啡<span class="caret">▼</span></button>
+          <div class="dropdown coffee-panel">
+            <div class="drop-head">☕ 请 LEO 喝杯咖啡</div>
+            <p class="coffee-tip">如果这些小工具对你有帮助，请 LEO 喝杯咖啡吧，每一杯都是继续创作的动力～</p>
+            <div class="qr-row">
+              <div class="qr-card">
+                <div class="qr-label">支付宝 <span>扫一扫，请喝咖啡</span></div>
+                <div class="qr-box">
+                  <img src="qr/alipay.png" alt="支付宝收款码" onerror="this.style.display='none';this.parentElement.querySelector('.qr-ph').style.display='block'">
+                  <div class="qr-ph" style="display:none">收款码待添加</div>
+                </div>
+              </div>
+              <div class="qr-card">
+                <div class="qr-label">微信 <span>扫一扫，请喝咖啡</span></div>
+                <div class="qr-box">
+                  <img src="qr/wechat.png" alt="微信收款码" onerror="this.style.display='none';this.parentElement.querySelector('.qr-ph').style.display='block'">
+                  <div class="qr-ph" style="display:none">收款码待添加</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 联系 -->
+        <div class="menu-item">
+          <button class="menu-btn">联系<span class="caret">▼</span></button>
+          <div class="dropdown contact-panel">
+            <div class="drop-head">联系 LEO</div>
+            <a class="c-row" href="mailto:leooelcn@gmail.com">
+              <span class="c-ico">✉️</span>
+              <span><span class="c-txt">leooelcn@gmail.com</span><br/><span class="c-sub">邮箱 · 欢迎交流</span></span>
+            </a>
+            <a class="c-row" href="https://github.com/leoyoyofiona" target="_blank" rel="noopener">
+              <span class="c-ico">🐙</span>
+              <span><span class="c-txt">github.com/leoyoyofiona</span><br/><span class="c-sub">GitHub · 全部开源项目</span></span>
+            </a>
+          </div>
+        </div>
+
+        <!-- 免责声明 -->
+        <div class="menu-item">
+          <button class="menu-btn">声明<span class="caret">▼</span></button>
+          <div class="dropdown disc-panel">
+            <div class="drop-head">⚠️ 免责声明</div>
+            <p>
+              <b>1.</b> 本站所有工具均由 LEO 出于个人学习与娱乐目的开发，输出内容仅为文字形式变换或数据展示，不代表任何立场与建议。<br/>
+              <b>2.</b> 涉及彩票、竞猜、预测的项目（世界杯、足彩、大乐透、福彩等）仅基于公开历史数据的统计演示，<b>不构成任何投注指导</b>；彩票有风险，投注需理性，未成年人禁止购彩。<br/>
+              <b>3.</b> 涉及网络信息整理的项目，请遵守相关平台规则与法律法规，仅限个人学习研究，禁止用于商业或侵权用途。<br/>
+              <b>4.</b> 使用者应遵守当地法律法规与平台规则，因使用本工具产生的任何后果由使用者自行承担。<br/>
+              <b>5.</b> 本站内容部分由 AI 辅助生成，仅供参考交流。
+            </p>
+          </div>
+        </div>
+      </nav>
+
+      <button class="theme-btn" id="theme-toggle" title="切换白天 / 夜晚">🌙</button>
     </div>
-    <button id="go">改写一下</button>
+  </header>
+
+  <!-- ===== 主内容 ===== -->
+  <div class="wrap">
+    <h1>怎么改你都懂</h1>
+
+    <label for="src">输入原文</label>
+    <textarea id="src" placeholder="在这里输入你想改写的中文句子，比如：&#10;朋友，这个方案真的太厉害了，你说得对，晚上一起吃饭睡觉，晚安！"></textarea>
+
+    <div class="controls">
+      <div class="slider-group">
+        <span class="cap">改写强度</span>
+        <input id="strength" type="range" min="1" max="10" value="6" />
+        <span class="slider-val" id="sval">6</span>
+      </div>
+      <button id="go">改写一下</button>
+    </div>
+
+    <label>改写结果</label>
+    <div class="out-card" id="out">
+      <button class="copy-btn" id="copy">复制</button>
+      <span id="outtext">点「改写一下」看看效果 ✨</span>
+    </div>
   </div>
 
-  <label>改写结果</label>
-  <div class="out-card" id="out">
-    <button class="copy-btn" id="copy">复制</button>
-    <span id="outtext">点「改写一下」看看效果 ✨</span>
-  </div>
-</div>
+  <!-- ===== 底部免责声明条 ===== -->
+  <footer class="foot">
+    ⚠️ 本工具仅供学习与娱乐，请遵守法律法规与平台规则 · 联系：<a href="mailto:leooelcn@gmail.com">leooelcn@gmail.com</a> · <a href="https://github.com/leoyoyofiona" target="_blank" rel="noopener">GitHub</a>
+  </footer>
 
 <script src="pinyin-map.js"></script>
 <script>
-// ====== 数字梗表（正常词 → 数字暗语，长词在前避免被短词先截胡） ======
+/* ================= LEO 作品数据 ================= */
+const WORKS=[
+  {n:"世界杯",i:"🏆",d:"2026 男足世界杯预测模型",u:"https://worldcup-prediction-peur.onrender.com",g:"worldcup-prediction"},
+  {n:"足彩",i:"🎯",d:"竞彩足球模拟投注与赔率工具",u:"https://leo-football-lottery.onrender.com",g:"leo-football-lottery"},
+  {n:"大乐透",i:"🎰",d:"超级大乐透 + 排列3/5 + 7星彩走势分析",u:"https://super-lotto-trend-model.onrender.com",g:"super-lotto-trend-model"},
+  {n:"福彩",i:"🧧",d:"福彩双色球历史走势与组合分析",u:"https://leo-welfare-lottery.onrender.com",g:"leo-welfare-lottery"},
+  {n:"周星弛",i:"🎬",d:"周星驰先生作品欣赏 · 中国大陆友好版",u:"https://stephen-chow-works-mainland.onrender.com",g:"stephen-chow-works-mainland"},
+  {n:"抓小红书",i:"📕",d:"小红书收藏导航整理工具（macOS）",g:"xiaohongshu-favorites"},
+  {n:"同声传译",i:"🎙️",d:"多国语言同声翻译字幕框（macOS）",g:"ZH-EN-TH-translate"},
+  {n:"打字三下空格翻译",i:"⌨️",d:"中文思考、英文发送，三下空格原位切换",g:"triple-space-translator"},
+  {n:"macOS快捷助手",i:"🍎",d:"按住一键，显示当前 App 的快捷键",g:"LEO-MACOS-Shortcut-Assistant"},
+  {n:"yoyo学习",i:"📚",d:"侑侑学习大提升：四科互动学习与题库",u:"https://yoyo-learning-boost.onrender.com",g:"yoyo-learning-boost"},
+  {n:"足彩分析",i:"📊",d:"竞彩足球赔率分析与历史回测",u:"https://leo-football-lottery.onrender.com",g:"leo-football-lottery"},
+  {n:"高考志愿填报",i:"🎓",d:"志愿罗盘：三步搞定高考志愿填报",u:"https://leo-zhiyuan.onrender.com",g:"leo-zhiyuan-compass"},
+  {n:"今天你笑了吗？",i:"😂",d:"快乐一下，笑一笑（敬请期待）",coming:true},
+  {n:"浙师大约球",i:"⚽",d:"浙师大教工约球系统（Web + macOS）",u:"https://zjnu-staff-football.onrender.com",g:"zjnu-staff-football"},
+  {n:"自动模仿手打字",i:"🖋️",d:"WPS Auto Typewriter 逐字回放输入",g:"autotype"},
+  {n:"notype",i:"🎤",d:"原生 macOS 语音输入，让结果更干净",g:"NoType"},
+  {n:"workbuddy学习",i:"🤖",d:"WorkBuddy 中文学习指南（非官方）",u:"https://workbuddy-guide.onrender.com",g:"workbuddy-guide"},
+];
+const PALETTE=[
+  ["#ff9a3d","#ff5f6d"],["#36d1dc","#5b86e5"],["#f6d365","#fda085"],["#a1c4fd","#5b86e5"],
+  ["#84fab0","#8fd3f4"],["#fccb90","#d57eeb"],["#ffecd2","#fcb69f"],["#30cfd0","#330867"],
+  ["#f093fb","#f5576c"],["#4facfe","#00f2fe"],["#fa709a","#fee140"],["#a8edea","#fed6e3"],
+  ["#667eea","#764ba2"],["#fbc2eb","#a6c1ee"],["#85a1ff","#b06ab3"],["#43e97b","#38f9d7"],
+  ["#f83600","#f9d423"],
+];
+(function buildWorks(){
+  const grid=document.getElementById('w-grid');
+  WORKS.forEach((w,idx)=>{
+    const a=document.createElement('a');
+    const [g1,g2]=PALETTE[idx%PALETTE.length];
+    a.className='w-card';
+    a.style.setProperty('--i',idx);
+    a.style.setProperty('--g1',g1);
+    a.style.setProperty('--g2',g2);
+    if(w.coming){a.setAttribute('href','https://github.com/leoyoyofiona');a.setAttribute('target','_blank');a.setAttribute('rel','noopener')}
+    else{a.setAttribute('href',w.u||('https://github.com/leoyoyofiona/'+w.g));a.setAttribute('target','_blank');a.setAttribute('rel','noopener')}
+    a.innerHTML=
+      '<span class="w-icon">'+w.i+'</span>'+
+      '<span class="w-info"><span class="w-name">'+w.n+'</span><br/><span class="w-desc">'+w.d+'</span></span>'+
+      (w.coming?'<span class="w-badge">即将上线</span>':'');
+    grid.appendChild(a);
+  });
+})();
+
+/* ================= 主题切换（全局白天/夜晚） ================= */
+(function(){
+  const btn=document.getElementById('theme-toggle');
+  const root=document.documentElement;
+  function paint(){
+    const dark=root.dataset.theme==='dark';
+    btn.textContent=dark?'☀️':'🌙';
+    btn.title=dark?'切换到白天':'切换到夜晚';
+  }
+  paint();
+  btn.addEventListener('click',()=>{
+    root.dataset.theme=root.dataset.theme==='dark'?'light':'dark';
+    try{localStorage.setItem('leo-theme',root.dataset.theme)}catch(e){}
+    paint();
+  });
+})();
+
+/* ================= 改写引擎 ================= */
+// 数字梗表（正常词 → 数字暗语，长词在前）
 const NUM_SLANG=[
   ["我爱你一生一世","5201314"],["我生气了","5376"],["拜拜咯","886"],["哈哈哈","2333"],
   ["厉害","666"],["很溜","666"],["牛逼","666"],["我想你","530"],
@@ -122,18 +441,14 @@ const NUM_SLANG=[
   ["就是就是","9494"],["是啊是啊","4242"],
 ];
 
-// ====== 约定俗成词表（互联网通用表达：谐音字词 + 拼音缩写 + 中英混搭）
-// 来源：维基百科「拼音缩写」、网络缩略语大全、中文网络词规范化数据集等
-// 长词在前，避免被短词先截胡 ======
+// 约定俗成词表（互联网通用表达：谐音字词 + 拼音缩写 + 中英混搭）
 const CONV_MAP=[
-  // —— 拼音缩写（字母梗）——
   ["笑死我了","xswl"],["永远的神","yyds"],["你说得对","nsdd"],["有一说一","u1s1"],
   ["不好意思","bhys"],["瑟瑟发抖","ssfd"],["漂亮妹妹","plmm"],["真情实感","zqsg"],
   ["生日快乐","生快"],["不懂就问","bdjw"],["啊我死了","awsl"],["对不起","dbq"],
   ["太强了","tql"],["磕死我了","kswl"],["女朋友","npy"],["打扰了","drl"],
   ["小哥哥","xgg"],["小姐姐","xjj"],["兄弟们","xdm"],["家人们","jrm"],
   ["搞快点","gkd"],["学到了","xdl"],["磕到了","kdl"],["楼主","lz"],["微信","wx"],
-  // —— 谐音字词 ——
   ["不知道","布吉岛"],["有没有","有木有"],["这样子","酱紫"],["为什么","为神马"],
   ["没关系","木有关系"],["怎么了","肿么了"],["害怕","害pia"],["可爱","阔爱"],
   ["可怕","阔怕"],["难过","蓝瘦"],["开心","开熏"],["紧张","紧脏"],["激动","鸡冻"],
@@ -147,7 +462,7 @@ const CONV_MAP=[
   ["好的","好滴"],
 ];
 
-// ====== 同音/错别字表（敏感词 → 谐音/错字写法） ======
+// 同音/错别字表（敏感词 → 谐音/错字写法）
 const HOMOPHONE_MAP=[
   ["政府","振府"],["检查","捡查"],["监控","见控"],["敏感","感敏"],["审查","审察"],
   ["政治","政制"],["民主","皿主"],["自由","自游"],["人权","仁权"],["改革","改格"],
@@ -168,22 +483,20 @@ const HOMOPHONE_MAP=[
   ["人质","仁质"],["屠杀","图杀"],["酷刑","哭行"],["虐待","女待"],
 ];
 
-// ====== 带音调拼音混写表（正常词 → lì害 这类写法） ======
+// 带音调拼音混写表
 const MIX_MAP=[
   ["绝了","jue了"],["太强","tai强"],["太棒","tai棒"],["服了","fu了"],
   ["无语","wú语"],["我靠","我kao"],["搞笑","gao笑"],["离谱","lí谱"],
   ["崩溃","bēng溃"],["炸裂","炸liè"],["上头","上tóu"],["硬核","yìng核"],["顶级","顶jí"],
 ];
 
-// ====== 工具函数 ======
-// 保护集合：词表替换出来的纯汉字结果（酱紫、盆友、布吉岛…）不再被字序颠倒/随机拼音二次破坏
+// 保护集合：词表替换出来的纯汉字结果不再被二次破坏
 const PROTECT=new Set();
 for(const _m of [NUM_SLANG,CONV_MAP,HOMOPHONE_MAP,MIX_MAP]){
   for(const[,v]of _m){
     if(/^[\u4e00-\u9fff]{2,}$/.test(v))PROTECT.add(v);
   }
 }
-// 片段内只要包含任一约定词（长度≥2），就整体跳过，避免破坏已替换结果
 function hasProtected(seg){
   for(const w of PROTECT){
     if(w.length>=2&&seg.includes(w))return true;
@@ -199,8 +512,6 @@ function maybeFlip(seg,p){
   if(seg.length===2)return Math.random()<.7?seg[1]+seg[0]:seg;
   return flipTwo(seg);
 }
-
-// 通用：按词表逐条替换（每条约按概率生效，只替换第一次出现）
 function applyMap(t,map,prob){
   let o=t;
   for(const[f,r]of map){
@@ -208,15 +519,11 @@ function applyMap(t,map,prob){
   }
   return o;
 }
-
-// 通用拼音/字母兜底引擎：仅对词表没覆盖的任意汉字生效（概率低，以约定俗成为主）
-// 单字级：全拼(wo) / 首字母(w) / 首字母+字(j天) / 字+首字母(今t)
-// 词级：2~4字词整体缩写为拼音首字母大写(方案→FA)
 function applyPinyin(t,s){
-  const p=s*0.015;  // 单字替换概率（低）
-  const pRun=s*0.02; // 整词缩写概率（低）
+  const p=s*0.015;
+  const pRun=s*0.02;
   return t.replace(/[\u4e00-\u9fff]{2,5}/g,run=>{
-    if(hasProtected(run))return run;   // 片段内含约定俗成词 → 保护，不再二次改写
+    if(hasProtected(run))return run;
     if(run.length>=2&&run.length<=4&&Math.random()<pRun){
       let acro="";
       for(const ch of run){const py=PY[ch];if(!py){acro="";break}acro+=py[0]}
@@ -226,15 +533,13 @@ function applyPinyin(t,s){
       if(Math.random()>=p)return ch;
       const py=PY[ch];if(!py)return ch;
       const r=Math.random();
-      if(r<0.45)return py;          // 全拼：我→wo
-      if(r<0.7)return py[0];        // 首字母：我→w
-      if(r<0.85)return py[0]+ch;    // 首字母+字：今→j今
-      return ch+py[0];              // 字+首字母：今→今j
+      if(r<0.45)return py;
+      if(r<0.7)return py[0];
+      if(r<0.85)return py[0]+ch;
+      return ch+py[0];
     });
   });
 }
-
-// strength 为 1~10
 function applyNum(t){return applyMap(t,NUM_SLANG,1)}
 function applyConv(t,s){return applyMap(t,CONV_MAP,s*0.10)}
 function applyHom(t,s){return applyMap(t,HOMOPHONE_MAP,s*0.09)}
@@ -245,16 +550,16 @@ function applyFlip(t,s){
 }
 function transform(src,strength){
   let t=src;
-  t=applyNum(t);          // ① 数字梗
-  t=applyConv(t,strength); // ② 约定俗成词（首选）
-  t=applyHom(t,strength); // ③ 同音/错别字
-  t=applyMix(t,strength); // ④ 带音调拼音混写
-  t=applyPinyin(t,strength); // ⑤ 通用拼音/字母兜底
-  t=applyFlip(t,strength);   // ⑥ 字序微颠倒
+  t=applyNum(t);
+  t=applyConv(t,strength);
+  t=applyHom(t,strength);
+  t=applyMix(t,strength);
+  t=applyPinyin(t,strength);
+  t=applyFlip(t,strength);
   return t;
 }
 
-// ====== UI ======
+/* ================= 工具 UI ================= */
 const $=id=>document.getElementById(id);
 const slider=$("strength"),sval=$("sval");
 function paintSlider(){
