@@ -82,15 +82,16 @@
       box-shadow:var(--shadow-lg);
       transition:opacity .18s ease,transform .18s ease,visibility 0s linear .18s;
     }
-    .menu-item:hover .dropdown,.menu-item:focus-within .dropdown{
+    .menu-item:hover .dropdown,.menu-item:focus-within .dropdown,.menu-item.open .dropdown{
       opacity:1;visibility:visible;pointer-events:auto;
       transform:translateX(-50%) translateY(0);
       transition:opacity .18s ease,transform .18s ease,visibility 0s linear 0s;
     }
+    .menu-item.open .menu-btn{background:var(--bg2)}
     .drop-head{padding:14px 18px 6px;font-size:13px;font-weight:600;color:var(--ink2)}
 
     /* 作品面板 */
-    .works-panel{width:min(800px,94vw);padding:6px 14px 16px}
+    .works-panel{position:fixed;top:70px;left:50%;width:min(800px,94vw);padding:6px 14px 16px}
     .w-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;padding:8px 4px}
     .w-card{
       display:flex;align-items:center;gap:11px;
@@ -267,7 +268,7 @@
 
       <nav class="menu">
         <!-- 作品 -->
-        <div class="menu-item">
+        <div class="menu-item" id="mi-works">
           <button class="menu-btn">作品<span class="caret">▼</span></button>
           <div class="dropdown works-panel" id="works-panel">
             <div class="drop-head">LEO 的作品 · 全部开源在 GitHub，部署在 Render</div>
@@ -276,7 +277,7 @@
         </div>
 
         <!-- 咖啡 -->
-        <div class="menu-item">
+        <div class="menu-item" id="mi-coffee">
           <button class="menu-btn">咖啡<span class="caret">▼</span></button>
           <div class="dropdown coffee-panel">
             <div class="drop-head">☕ 请 LEO 喝杯咖啡</div>
@@ -301,7 +302,7 @@
         </div>
 
         <!-- 联系 -->
-        <div class="menu-item">
+        <div class="menu-item" id="mi-contact">
           <button class="menu-btn">联系<span class="caret">▼</span></button>
           <div class="dropdown contact-panel">
             <div class="drop-head">联系 LEO</div>
@@ -317,7 +318,7 @@
         </div>
 
         <!-- 免责声明 -->
-        <div class="menu-item">
+        <div class="menu-item" id="mi-disc">
           <button class="menu-btn">声明<span class="caret">▼</span></button>
           <div class="dropdown disc-panel">
             <div class="drop-head">⚠️ 免责声明</div>
@@ -579,6 +580,44 @@ $("copy").onclick=()=>{
   const t=$("outtext").textContent;if(!t)return;
   navigator.clipboard.writeText(t).then(()=>{$("copy").textContent="已复制 ✓";setTimeout(()=>$("copy").textContent="复制",1200)});
 };
+
+/* ============ 直达参数 & 触屏点击展开（分享/截图/移动端用） ============ */
+(function(){
+  const qs=new URLSearchParams(location.search);
+  // ?theme=dark|light
+  if(qs.get('theme')){
+    document.documentElement.dataset.theme=qs.get('theme');
+    try{localStorage.setItem('leo-theme',qs.get('theme'))}catch(e){}
+    const btn=$("theme-toggle");
+    if(btn)btn.textContent=qs.get('theme')==='dark'?'☀️':'🌙';
+  }
+  // ?menu=works|coffee|contact|disc
+  const mi=qs.get('menu');
+  if(mi){
+    const el=document.getElementById('mi-'+mi);
+    if(el)el.classList.add('open');
+  }
+  // ?demo=1 预填示例并生成效果（截图/演示用，固定种子保证输出稳定好看）
+  if(qs.get('demo')){
+    let s=5;Math.random=function(){s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff};
+    const srcEl=$("src");
+    if(srcEl){
+      srcEl.value="朋友，这个方案真的太厉害了，你说得对，晚上一起吃饭睡觉，晚安！";
+      $("outtext").textContent=transform(srcEl.value,6);
+    }
+  }
+  // 触屏/点击：点击按钮切换展开
+  document.querySelectorAll('.menu-item').forEach(mi=>{
+    const btn=mi.querySelector('.menu-btn');
+    btn.addEventListener('click',e=>{
+      if(mi.classList.contains('open')){mi.classList.remove('open')}
+      else{
+        document.querySelectorAll('.menu-item.open').forEach(o=>o.classList.remove('open'));
+        mi.classList.add('open');
+      }
+    });
+  });
+})();
 </script>
 </body>
 </html>
