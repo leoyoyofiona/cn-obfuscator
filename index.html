@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>中文同义改写小工具</title>
+  <style>
+    :root{--bg:#0f172a;--card:#111827;--border:#1f2937;--muted:#94a3b8;--text:#e5e7eb;--accent:#22c55e;--accent2:#38bdf8}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:radial-gradient(circle at top left,#0b1120,#0f172a 60%);color:var(--text);min-height:100vh}
+    .wrap{max-width:860px;margin:0 auto;padding:32px 20px 48px}
+    h1{margin:0 0 6px;font-size:28px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .sub{color:var(--muted);margin:0 0 28px;font-size:14px}
+    label{display:block;margin-bottom:8px;font-size:14px;color:var(--muted)}
+    textarea{width:100%;min-height:120px;padding:14px 16px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:16px;line-height:1.7;resize:vertical;outline:none;transition:border-color .2s}
+    textarea:focus{border-color:var(--accent)}
+    .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:16px 0 20px}
+    .slider-group{display:flex;align-items:center;gap:10px;flex:1 1 240px}
+    .slider-group input[type=range]{flex:1;accent-color:var(--accent)}
+    .slider-val{min-width:42px;text-align:center;font-variant-numeric:tabular-nums;color:var(--accent);font-weight:600}
+    button#go{padding:12px 28px;border:none;border-radius:10px;background:linear-gradient(135deg,#16a34a,#0ea5e9);color:#fff;font-size:16px;font-weight:600;cursor:pointer;transition:transform .12s,box-shadow .2s}
+    button#go:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(22,163,74,.25)}
+    .out-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;min-height:80px;white-space:pre-wrap;font-size:16px;line-height:1.7;position:relative}
+    .copy-btn{position:absolute;top:10px;right:12px;background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer}
+    .copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .legend{margin-top:22px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;font-size:13px;color:var(--muted);line-height:1.8}
+    .legend b{color:var(--text)}
+    .modes{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0}
+    .modes label{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:13px;color:var(--muted);transition:border-color .2s}
+    .modes label:has(input:checked){border-color:var(--accent);color:var(--text)}
+    .modes input{accent-color:var(--accent)}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🫣 中文同义改写小工具</h1>
+  <p class="sub">把正常中文句子，变成「中国人一眼能看懂、机器难抓」的写法。纯前端，不上传任何内容。</p>
+
+  <label for="src">输入原文（正常中文）</label>
+  <textarea id="src" placeholder="在这里输入你想改写的中文句子，比如：&#10;这个方案真的太厉害了，我们明天下午三点开会讨论一下吧，拜拜！"></textarea>
+
+  <div class="controls">
+    <div class="slider-group">
+      <span>改写强度</span>
+      <input id="strength" type="range" min="1" max="5" value="3" />
+      <span class="slider-val" id="sval">3</span>
+    </div>
+    <button id="go">改写一下</button>
+  </div>
+
+  <div class="modes">
+    <label><input type="checkbox" id="m_num" checked /> 数字梗（厉害→666、拜拜→88、我爱你→520…）</label>
+    <label><input type="checkbox" id="m_hom" checked /> 同音/错别字（政府→振府…）</label>
+    <label><input type="checkbox" id="m_flip" checked /> 小范围字序颠倒</label>
+    <label><input type="checkbox" id="m_mix" checked /> 字母/拼音混写（厉害→lì害…）</label>
+  </div>
+
+  <div style="margin-top:18px;">
+    <label>改写结果（暗语版）</label>
+    <div class="out-card" id="out">
+      <button class="copy-btn" id="copy">复制</button>
+      <span id="outtext">点「改写一下」看看效果 ✨</span>
+    </div>
+  </div>
+
+  <div class="legend">
+    <b>使用说明：</b><br/>
+    • 输入正常中文，输出「暗语版」，比如：厉害→666、拜拜→88、我爱你→520、一生一世→1314、气死我了→7456、傻瓜→62<br/>
+    • 拖动「改写强度」控制替换比例（1=很轻，5=较重）<br/>
+    • 四个开关自由组合：数字梗、同音/错别字、字序微颠倒、字母拼音混写<br/>
+    • 所有处理都在浏览器本地完成，<b>不会上传你的文本</b><br/>
+    • 目标：中国人一眼能看懂，但自动敏感词匹配更难命中
+  </div>
+</div>
+
+<script>
+// ====== 同音/错别字表（正常词 → 谐音/错字写法） ======
+const HOMOPHONE_MAP=[
+  ["政府","振府"],["检查","捡查"],["监控","见控"],["敏感","感敏"],["审查","审察"],
+  ["政治","政制"],["民主","皿主"],["自由","自游"],["人权","仁权"],["改革","改格"],
+  ["抗议","看异"],["示威","市威"],["游行","由行"],["请愿","晴愿"],["罢工","八工"],
+  ["革命","个命"],["独裁","读裁"],["腐败","付败"],["贪污","谈物"],["压迫","呀迫"],
+  ["镇压","阵呀"],["逮捕","带捕"],["拘留","居留"],["封锁","风锁"],["删帖","山帖"],
+  ["封号","风号"],["禁言","尽言"],["限流","线流"],["屏蔽","瓶避"],["过滤","国虑"],
+  ["举报","菊报"],["实名","十名"],["追踪","追宗"],["维稳","为稳"],
+  ["上访","上方"],["维权","为权"],["强拆","墙拆"],["征地","争地"],["城管","成管"],
+  ["黑社会","嘿社会"],["打黑","大嘿"],["黄赌毒","黄读毒"],["色情","涩情"],
+  ["赌博","读博"],["毒品","独品"],["走私","走丝"],["洗钱","西钱"],
+  ["逃税","桃税"],["造假","早假"],["盗版","到版"],["破解","破姐"],
+  ["翻墙","帆墙"],["加密","加蜜"],["解密","姐蜜"],
+  ["黑客","嘿客"],["病毒","丙毒"],["木马","木蚂"],["钓鱼","掉鱼"],["诈骗","炸骗"],
+  ["传销","穿销"],["非法","飞法"],["违法","违发"],["犯罪","饭最"],["判刑","盼行"],
+  ["死刑","四刑"],["无期","五期"],["枪毙","墙必"],["越狱","月狱"],["暴动","报动"],
+  ["恐怖","空步"],["炸弹","炸蛋"],["枪击","墙击"],["绑架","绑假"],
+  ["人质","仁质"],["屠杀","图杀"],["酷刑","哭行"],["虐待","女待"],
+];
+
+// ====== 数字梗表（正常词 → 数字暗语，中国人一看就懂） ======
+const NUM_SLANG=[
+  ["厉害","666"],["很溜","666"],["拜拜","88"],["我爱你","520"],["一生一世","1314"],
+  ["呜呜呜","555"],["气死我了","7456"],["救救我","995"],["谢谢","3Q"],["傻瓜","62"],
+];
+
+// ====== 字母/拼音混写表（正常词 → 拼音混写） ======
+const MIX_MAP=[
+  ["牛逼","niúB"],["厉害","lì害"],["绝了","jue了"],["太强","tai强"],
+  ["nb","niuB"],["yyds","永远滴神"],["草","cǎo"],["卧槽","我cào"],
+  ["太棒","tai棒"],["服了","fu了"],["牛","Niu"],["无语","wú语"],
+  ["我靠","我kao"],["搞笑","gao笑"],["离谱","lí谱"],["崩溃","bēng溃"],
+  ["炸裂","炸liè"],["上头","上tóu"],["硬核","yìng核"],["顶级","顶jí"],
+];
+
+// ====== 工具函数 ======
+function rand(n){return Math.floor(Math.random()*n)}
+function flipTwo(s){if(s.length<2)return s;const i=rand(s.length-1);return s.slice(0,i)+s[i+1]+s[i]+s.slice(i+2)}
+function maybeFlip(seg,p){
+  if(!/^[\u4e00-\u9fff]{2,5}$/.test(seg))return seg;
+  if(Math.random()>p)return seg;
+  if(seg.length===2)return Math.random()<.7?seg[1]+seg[0]:seg;
+  return flipTwo(seg);
+}
+
+// 通用：按词表逐条替换（每条约按概率生效，只替换第一次出现）
+function applyMap(t,map,prob){
+  let o=t;
+  for(const[f,r]of map){
+    if(o.includes(f)&&Math.random()<prob)o=o.replace(f,r);
+  }
+  return o;
+}
+function applyHom(t,s){return applyMap(t,HOMOPHONE_MAP,s*.18)}
+function applyNum(t){return applyMap(t,NUM_SLANG,1)}
+function applyMix(t,s){return applyMap(t,MIX_MAP,s*.12)}
+function applyFlip(t,s){
+  const p=s*.15;
+  return t.replace(/[\u4e00-\u9fff]{2,5}/g,m=>maybeFlip(m,p));
+}
+function transform(src,strength,opts){
+  let t=src;
+  if(opts.num)t=applyNum(t);        // 先处理数字梗，优先把 厉害→666 这类替换掉
+  if(opts.hom)t=applyHom(t,strength);
+  if(opts.mix)t=applyMix(t,strength);
+  if(opts.flip)t=applyFlip(t,strength);
+  return t;
+}
+
+// ====== UI ======
+const $=id=>document.getElementById(id);
+const slider=$("strength"),sval=$("sval");
+slider.oninput=()=>sval.textContent=slider.value;
+
+$("go").onclick=()=>{
+  const src=$("src").value.trim();
+  if(!src){$("outtext").textContent="请先输入一些文字 :)";return}
+  const strength=parseInt(slider.value);
+  const opts={num:$("m_num").checked,hom:$("m_hom").checked,flip:$("m_flip").checked,mix:$("m_mix").checked};
+  $("outtext").textContent=transform(src,strength,opts);
+};
+
+$("copy").onclick=()=>{
+  const t=$("outtext").textContent;if(!t)return;
+  navigator.clipboard.writeText(t).then(()=>{$("copy").textContent="已复制 ✓";setTimeout(()=>$("copy").textContent="复制",1200)});
+};
+</script>
+</body>
+</html>
