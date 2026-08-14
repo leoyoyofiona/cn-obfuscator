@@ -80,6 +80,8 @@
       opacity:0;visibility:hidden;pointer-events:none;
       background:var(--panel);border:1px solid var(--linesoft);border-radius:20px;
       box-shadow:var(--shadow-lg);
+      max-height:calc(100vh - 96px);overflow-y:auto;
+      -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
       transition:opacity .18s ease,transform .18s ease,visibility 0s linear .18s;
     }
     .menu-item:focus-within .dropdown,.menu-item.open .dropdown{
