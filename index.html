@@ -3,73 +3,109 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>中文同义改写小工具</title>
+  <title>怎么改你都懂</title>
   <style>
-    :root{--bg:#0f172a;--card:#111827;--border:#1f2937;--muted:#94a3b8;--text:#e5e7eb;--accent:#22c55e;--accent2:#38bdf8}
-    *{box-sizing:border-box}
-    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:radial-gradient(circle at top left,#0b1120,#0f172a 60%);color:var(--text);min-height:100vh}
-    .wrap{max-width:860px;margin:0 auto;padding:32px 20px 48px}
-    h1{margin:0 0 6px;font-size:28px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    .sub{color:var(--muted);margin:0 0 28px;font-size:14px}
-    label{display:block;margin-bottom:8px;font-size:14px;color:var(--muted)}
-    textarea{width:100%;min-height:120px;padding:14px 16px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:16px;line-height:1.7;resize:vertical;outline:none;transition:border-color .2s}
-    textarea:focus{border-color:var(--accent)}
-    .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:16px 0 20px}
-    .slider-group{display:flex;align-items:center;gap:10px;flex:1 1 240px}
-    .slider-group input[type=range]{flex:1;accent-color:var(--accent)}
-    .slider-val{min-width:42px;text-align:center;font-variant-numeric:tabular-nums;color:var(--accent);font-weight:600}
-    button#go{padding:12px 28px;border:none;border-radius:10px;background:linear-gradient(135deg,#16a34a,#0ea5e9);color:#fff;font-size:16px;font-weight:600;cursor:pointer;transition:transform .12s,box-shadow .2s}
-    button#go:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(22,163,74,.25)}
-    .out-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;min-height:80px;white-space:pre-wrap;font-size:16px;line-height:1.7;position:relative}
-    .copy-btn{position:absolute;top:10px;right:12px;background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer}
-    .copy-btn:hover{border-color:var(--accent);color:var(--accent)}
-    .legend{margin-top:22px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;font-size:13px;color:var(--muted);line-height:1.8}
-    .legend b{color:var(--text)}
-    .modes{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0}
-    .modes label{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:13px;color:var(--muted);transition:border-color .2s}
-    .modes label:has(input:checked){border-color:var(--accent);color:var(--text)}
-    .modes input{accent-color:var(--accent)}
+    :root{--blue:#0071e3;--blue-hover:#0077ed;--ink:#1d1d1f;--ink-2:#6e6e73;--bg:#f5f5f7;--line:#d2d2d7;--line-soft:#e8e8ed}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","PingFang SC","Helvetica Neue","Microsoft YaHei",sans-serif;
+      background:var(--bg);color:var(--ink);
+      -webkit-font-smoothing:antialiased;
+      min-height:100vh;
+    }
+    .wrap{max-width:680px;margin:0 auto;padding:72px 24px 96px}
+    h1{
+      font-size:34px;font-weight:700;letter-spacing:-.02em;
+      text-align:center;margin-bottom:44px;
+    }
+    label{display:block;font-size:13px;font-weight:500;color:var(--ink-2);margin-bottom:10px}
+    textarea{
+      width:100%;min-height:132px;
+      padding:16px 18px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--ink);
+      font-size:16px;line-height:1.65;
+      resize:vertical;outline:none;
+      box-shadow:0 2px 12px rgba(0,0,0,.04);
+      transition:border-color .2s,box-shadow .2s;
+    }
+    textarea:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(0,113,227,.12)}
+    textarea::placeholder{color:#a1a1a6}
+    .controls{display:flex;align-items:center;gap:18px;margin:26px 0 32px}
+    .slider-group{flex:1;display:flex;align-items:center;gap:16px}
+    .slider-group .cap{font-size:14px;font-weight:500;color:var(--ink-2);white-space:nowrap}
+    input[type=range]{
+      -webkit-appearance:none;appearance:none;
+      flex:1;height:28px;background:transparent;cursor:pointer;
+    }
+    input[type=range]::-webkit-slider-runnable-track{
+      height:6px;border-radius:3px;
+      background:linear-gradient(to right,var(--blue) 0%,var(--blue) var(--fill,50%),var(--line) var(--fill,50%),var(--line) 100%);
+    }
+    input[type=range]::-webkit-slider-thumb{
+      -webkit-appearance:none;width:26px;height:26px;border-radius:50%;
+      background:#fff;border:1px solid rgba(0,0,0,.08);
+      box-shadow:0 2px 8px rgba(0,0,0,.16);
+      margin-top:-10px;transition:transform .15s;
+    }
+    input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.08)}
+    input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:var(--line)}
+    input[type=range]::-moz-range-progress{height:6px;border-radius:3px;background:var(--blue)}
+    input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:#fff;border:none;box-shadow:0 2px 8px rgba(0,0,0,.16)}
+    .slider-val{
+      min-width:44px;text-align:center;
+      font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;
+      color:var(--blue);
+    }
+    button#go{
+      padding:12px 30px;border-radius:980px;border:none;
+      background:var(--blue);color:#fff;
+      font-size:15px;font-weight:600;font-family:inherit;
+      cursor:pointer;transition:background .2s,transform .12s,box-shadow .2s;
+      box-shadow:0 2px 8px rgba(0,113,227,.28);
+      white-space:nowrap;
+    }
+    button#go:hover{background:var(--blue-hover)}
+    button#go:active{transform:scale(.97)}
+    .out-card{
+      background:#fff;border:1px solid var(--line-soft);border-radius:16px;
+      padding:22px 22px 18px;min-height:92px;
+      white-space:pre-wrap;font-size:16px;line-height:1.7;
+      position:relative;
+      box-shadow:0 2px 12px rgba(0,0,0,.04);
+    }
+    .copy-btn{
+      position:absolute;top:14px;right:14px;
+      background:#fff;border:1px solid var(--line);border-radius:980px;
+      color:var(--blue);padding:5px 14px;
+      font-size:12px;font-weight:500;font-family:inherit;cursor:pointer;
+      transition:background .15s,border-color .15s;
+    }
+    .copy-btn:hover{background:var(--bg);border-color:var(--blue)}
   </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>🫣 中文同义改写小工具</h1>
-  <p class="sub">把正常中文句子，变成「中国人一眼能看懂、机器难抓」的写法。纯前端，不上传任何内容。</p>
+  <h1>怎么改你都懂</h1>
 
-  <label for="src">输入原文（正常中文）</label>
+  <label for="src">输入原文</label>
   <textarea id="src" placeholder="在这里输入你想改写的中文句子，比如：&#10;这个方案真的太厉害了，我们明天下午三点开会讨论一下吧，拜拜！"></textarea>
 
   <div class="controls">
     <div class="slider-group">
-      <span>改写强度</span>
-      <input id="strength" type="range" min="1" max="5" value="3" />
-      <span class="slider-val" id="sval">3</span>
+      <span class="cap">改写强度</span>
+      <input id="strength" type="range" min="1" max="10" value="6" />
+      <span class="slider-val" id="sval">6</span>
     </div>
     <button id="go">改写一下</button>
   </div>
 
-  <div class="modes">
-    <label><input type="checkbox" id="m_num" checked /> 数字梗（厉害→666、拜拜→88、我爱你→520…）</label>
-    <label><input type="checkbox" id="m_hom" checked /> 同音/错别字（政府→振府…）</label>
-    <label><input type="checkbox" id="m_flip" checked /> 小范围字序颠倒</label>
-    <label><input type="checkbox" id="m_mix" checked /> 字母/拼音混写（厉害→lì害…）</label>
-  </div>
-
-  <div style="margin-top:18px;">
-    <label>改写结果（暗语版）</label>
-    <div class="out-card" id="out">
-      <button class="copy-btn" id="copy">复制</button>
-      <span id="outtext">点「改写一下」看看效果 ✨</span>
-    </div>
-  </div>
-
-  <div class="legend">
-    <b>使用说明：</b><br/>
-    • 输入正常中文，输出「暗语版」，比如：厉害→666、拜拜→88、我爱你→520、一生一世→1314、气死我了→7456、傻瓜→62<br/>
-    • 拖动「改写强度」控制替换比例（1=很轻，5=较重）<br/>
-    • 四个开关自由组合：数字梗、同音/错别字、字序微颠倒、字母拼音混写<br/>
-    • 所有处理都在浏览器本地完成，<b>不会上传你的文本</b><br/>
-    • 目标：中国人一眼能看懂，但自动敏感词匹配更难命中
+  <label>改写结果</label>
+  <div class="out-card" id="out">
+    <button class="copy-btn" id="copy">复制</button>
+    <span id="outtext">点「改写一下」看看效果 ✨</span>
   </div>
 </div>
 
@@ -128,33 +164,38 @@ function applyMap(t,map,prob){
   }
   return o;
 }
-function applyHom(t,s){return applyMap(t,HOMOPHONE_MAP,s*.18)}
+// strength 为 1~10，归一化后按比例生效
+function applyHom(t,s){return applyMap(t,HOMOPHONE_MAP,s*0.09)}
 function applyNum(t){return applyMap(t,NUM_SLANG,1)}
-function applyMix(t,s){return applyMap(t,MIX_MAP,s*.12)}
+function applyMix(t,s){return applyMap(t,MIX_MAP,s*0.06)}
 function applyFlip(t,s){
-  const p=s*.15;
+  const p=s*0.075;
   return t.replace(/[\u4e00-\u9fff]{2,5}/g,m=>maybeFlip(m,p));
 }
-function transform(src,strength,opts){
+function transform(src,strength){
   let t=src;
-  if(opts.num)t=applyNum(t);        // 先处理数字梗，优先把 厉害→666 这类替换掉
-  if(opts.hom)t=applyHom(t,strength);
-  if(opts.mix)t=applyMix(t,strength);
-  if(opts.flip)t=applyFlip(t,strength);
+  t=applyNum(t);        // 先处理数字梗，优先把 厉害→666 这类替换掉
+  t=applyHom(t,strength);
+  t=applyMix(t,strength);
+  t=applyFlip(t,strength);
   return t;
 }
 
 // ====== UI ======
 const $=id=>document.getElementById(id);
 const slider=$("strength"),sval=$("sval");
-slider.oninput=()=>sval.textContent=slider.value;
+function paintSlider(){
+  const v=parseInt(slider.value);
+  sval.textContent=v;
+  slider.style.setProperty("--fill",((v-1)/9*100)+"%");
+}
+slider.oninput=paintSlider;
+paintSlider();
 
 $("go").onclick=()=>{
   const src=$("src").value.trim();
   if(!src){$("outtext").textContent="请先输入一些文字 :)";return}
-  const strength=parseInt(slider.value);
-  const opts={num:$("m_num").checked,hom:$("m_hom").checked,flip:$("m_flip").checked,mix:$("m_mix").checked};
-  $("outtext").textContent=transform(src,strength,opts);
+  $("outtext").textContent=transform(src,parseInt(slider.value));
 };
 
 $("copy").onclick=()=>{
